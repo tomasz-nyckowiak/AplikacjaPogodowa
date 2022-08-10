@@ -7,4 +7,5 @@ module com.weather.pogodynka {
 
     opens com.weather.pogodynka to javafx.fxml;
     exports com.weather.pogodynka;
+    opens com.weather.pogodynka.controller;
 }
