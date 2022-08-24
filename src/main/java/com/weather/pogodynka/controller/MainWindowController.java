@@ -2,6 +2,7 @@ package com.weather.pogodynka.controller;
 
 import com.google.gson.Gson;
 import com.weather.pogodynka.model.Weather;
+import com.weather.pogodynka.model.WeatherData;
 import com.weather.pogodynka.service.WeatherService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -47,6 +48,8 @@ public class MainWindowController {
 
     @FXML
     private Label day5;
+    @FXML
+    private Label forecastDay1;
 
     private WeatherService weatherService = new WeatherService();
 
@@ -92,42 +95,38 @@ public class MainWindowController {
         Map innerMap = (Map) test.get(0);
         String desc = (String) innerMap.get("description");
 
-        /*System.out.println("temp: " + weather.getCurrent().get("temp"));
-        System.out.println("pressure: " + weather.getCurrent().get("pressure"));
-        System.out.println("humidity: " + weather.getCurrent().get("humidity"));
-        System.out.println("wind_speed: " + weather.getCurrent().get("wind_speed"));
-        System.out.println("description: " + desc);*/
-
         // SHOWING IN APPLICATION
-        String str2 = weather.getCurrent().get("pressure").toString();
-        double pressureAsDouble = fromStringToDouble(str2);
-        int pressureAsInt = fromDoubleToInt(pressureAsDouble);
-        String pressure = String.valueOf(pressureAsInt);
+        // CURRENT WEATHER
+        WeatherData weatherData = new WeatherData();
 
-        String str3 = weather.getCurrent().get("humidity").toString();
-        double humidityAsDouble = fromStringToDouble(str3);
-        int humidityAsInt = fromDoubleToInt(humidityAsDouble);
-        String humidity = String.valueOf(humidityAsInt);
+        String temperatureAsString = weather.getCurrent().get("temp").toString();
+        String temperature = weatherData.getTemperature(temperatureAsString);
 
-        currentTemp.setText(weather.getCurrent().get("temp").toString());
-        currentPressure.setText("Ciśnienie: " + pressure + "hPa");
-        currentHumidity.setText("Wilgotność: " + humidity + "%");
-        currentWindSpeed.setText(weather.getCurrent().get("wind_speed").toString());
+        String pressureAsString = weather.getCurrent().get("pressure").toString();
+        String pressure = weatherData.getPressure(pressureAsString);
+
+        String humidityAsString = weather.getCurrent().get("humidity").toString();
+        String humidity = weatherData.getHumidity(humidityAsString);
+
+        String windSpeedAsString = weather.getCurrent().get("wind_speed").toString();
+        String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
+
+        currentTemp.setText("Temperatura: " + temperature);
+        currentPressure.setText("Ciśnienie: " + pressure);
+        currentHumidity.setText("Wilgotność: " + humidity);
+        currentWindSpeed.setText("Prędkość wiatru: " + windSpeed);
         currentDescription.setText(desc);
 
-        // dla daily
+        // DAILY
+        String day1Temp = weather.getDaily()[0].getTemperature();
+        String day1Press = weather.getDaily()[0].getPressure();
+        String day1Hum = weather.getDaily()[0].getHumidity();
+        String day1Wind = weather.getDaily()[0].getWindSpeed();
+        String day1Desc = weather.getDaily()[0].getSecondWeather()[0].getDescription();
+
+        System.out.println(weather.getDaily().length);
         //System.out.println(weather.getDaily()[0].getPressure()); // WORKS!
         //System.out.println(weather.getDaily()[0].getTemperature()); // WORKS!
         //System.out.println(weather.getDaily()[0].getSecondWeather()[0].getMain());
-    }
-
-    public double fromStringToDouble(String str) {
-        double d = Double.parseDouble(str);
-        return d;
-    }
-
-    public int fromDoubleToInt(double d) {
-        int i = (int) d;
-        return i;
     }
 }
