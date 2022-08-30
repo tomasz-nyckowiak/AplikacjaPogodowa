@@ -1,6 +1,7 @@
 package com.weather.pogodynka.controller;
 
 import com.google.gson.Gson;
+import com.weather.pogodynka.Dates;
 import com.weather.pogodynka.model.Destination;
 import com.weather.pogodynka.model.Weather;
 import com.weather.pogodynka.model.WeatherData;
@@ -81,11 +82,91 @@ public class MainWindowController {
     private Label destinationForecastDay4;
     @FXML
     private Label destinationForecastDay5;
-    String userDestinationInput;
 
     private WeatherService weatherService = new WeatherService();
     private Geocoding geocoding = new Geocoding();
     WeatherData weatherData = new WeatherData();
+
+    public void setTodayDate() {
+        LocalDate obj = LocalDate.now();
+        String today = obj.toString();
+        todayDate.setText(today);
+    }
+
+    public void weatherForecastForUserLocation() {
+        TextField textField = new TextField("Zielona Góra");
+        String userLocation = textField.textProperty().getValue();
+        defaultLocation.setText(userLocation);
+        geocoding.setUserInput(userLocation);
+        StringBuffer content1 = geocoding.getDestination();
+        Destination[] destination = new Gson().fromJson(content1.toString(), Destination[].class);
+
+        double latitude = destination[0].getLat();
+        double longitude = destination[0].getLon();
+        String lat = weatherData.getCoordinates(latitude);
+        String lon = weatherData.getCoordinates(longitude);
+
+        weatherService.settingLat(lat);
+        weatherService.settingLon(lon);
+
+        Dates dates = new Dates();
+        String[] days = dates.getForecastDays();
+
+        day1.setText(days[0]);
+        day2.setText(days[1]);
+        day3.setText(days[2]);
+        day4.setText(days[3]);
+        day5.setText(days[4]);
+
+        // CURRENT WEATHER
+        StringBuffer content = weatherService.getWeather();
+        Weather weather = new Gson().fromJson(content.toString(), Weather.class);
+        List test = (List) weather.getCurrent().get("weather");
+        Map innerMap = (Map) test.get(0);
+        String desc = (String) innerMap.get("description");
+
+        String temperatureAsString = weather.getCurrent().get("temp").toString();
+        String temperature = weatherData.getTemperature(temperatureAsString);
+
+        String pressureAsString = weather.getCurrent().get("pressure").toString();
+        String pressure = weatherData.getPressure(pressureAsString);
+
+        String humidityAsString = weather.getCurrent().get("humidity").toString();
+        String humidity = weatherData.getHumidity(humidityAsString);
+
+        String windSpeedAsString = weather.getCurrent().get("wind_speed").toString();
+        String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
+
+        currentTemp.setText("Temperatura: " + temperature);
+        currentPressure.setText("Ciśnienie: " + pressure);
+        currentHumidity.setText("Wilgotność: " + humidity);
+        currentWindSpeed.setText("Prędkość wiatru: " + windSpeed);
+        currentDescription.setText(desc);
+
+        // WEATHER FORECAST FOR NEXT 5 DAYS
+        String[] forecastDay = new String[5];
+        String[] TemperatureDay = new String[5];
+        String[] PressureDay = new String[5];
+        String[] HumidityDay = new String[5];
+        String[] WindSpeedDay = new String[5];
+        String[] DescriptionDay = new String[5];
+
+        for (int i = 0; i <= 4; i++) {
+            TemperatureDay[i] = weather.getDaily()[i+1].getTemperature();
+            PressureDay[i] = weather.getDaily()[i+1].getPressure();
+            HumidityDay[i] = weather.getDaily()[i+1].getHumidity();
+            WindSpeedDay[i] = weather.getDaily()[i+1].getWindSpeed();
+            DescriptionDay[i] = weather.getDaily()[i+1].getSecondWeather()[0].getDescription();
+            forecastDay[i] = weatherData.getTemperature(TemperatureDay[i]) + ", " + weatherData.getPressure(PressureDay[i]) + ", " +
+                    weatherData.getHumidity(HumidityDay[i]) + ", " + weatherData.getWindSpeed(WindSpeedDay[i]) + ", " + DescriptionDay[i];
+        }
+
+        forecastDay1.setText(forecastDay[0]);
+        forecastDay2.setText(forecastDay[1]);
+        forecastDay3.setText(forecastDay[2]);
+        forecastDay4.setText(forecastDay[3]);
+        forecastDay5.setText(forecastDay[4]);
+    }
 
     @FXML
     void startButtonAction() {
@@ -210,22 +291,78 @@ public class MainWindowController {
 
     @FXML
     void search() {
-        userDestinationInput = chosenLocation.getText();
-        StringBuffer content = geocoding.getDestination();
-        Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
+        errorCityNotFound.setText("");
+        if (cityNameIsValid()) {
+            String userDestinationInput;
+            userDestinationInput = chosenLocation.getText();
+            geocoding.setUserInput(userDestinationInput);
+            StringBuffer content = geocoding.getDestination();
+            Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
 
-        //System.out.println(content);
-        System.out.println("name: " + destination[0].getName());
+            double latitude = destination[0].getLat();
+            double longitude = destination[0].getLon();
+            String lat = weatherData.getCoordinates(latitude);
+            String lon = weatherData.getCoordinates(longitude);
 
-        double latitude = destination[0].getLat();
-        double longitude = destination[0].getLon();
-        String lat = weatherData.getCoordinates(latitude);
-        String lon = weatherData.getCoordinates(longitude);
+            weatherService.settingLat(lat);
+            weatherService.settingLon(lon);
 
-        System.out.println("lat: " + lat);
-        System.out.println("lon: " + lon);
-        System.out.println("country: " + destination[0].getCountry());
-        //searchResult.setText(destination[0].getName());
+            //String name = destination[0].getName();
+            String country = destination[0].getCountry();
+            String namePL = destination[0].getNames().get("pl").toString();
 
+            searchResult.setText(namePL + ", " + country);
+
+            Dates dates = new Dates();
+            String[] days = dates.getForecastDays();
+
+            destinationDay1.setText(days[0]);
+            destinationDay2.setText(days[1]);
+            destinationDay3.setText(days[2]);
+            destinationDay4.setText(days[3]);
+            destinationDay5.setText(days[4]);
+
+            StringBuffer contentWeather = weatherService.getWeather();
+            Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
+
+            // DAILY
+            String[] forecastDay = new String[5];
+            String[] TemperatureDay = new String[5];
+            String[] PressureDay = new String[5];
+            String[] HumidityDay = new String[5];
+            String[] WindSpeedDay = new String[5];
+            String[] DescriptionDay = new String[5];
+
+            for (int i = 0; i <= 4; i++) {
+                TemperatureDay[i] = weather.getDaily()[i+1].getTemperature();
+                PressureDay[i] = weather.getDaily()[i+1].getPressure();
+                HumidityDay[i] = weather.getDaily()[i+1].getHumidity();
+                WindSpeedDay[i] = weather.getDaily()[i+1].getWindSpeed();
+                DescriptionDay[i] = weather.getDaily()[i+1].getSecondWeather()[0].getDescription();
+                forecastDay[i] = weatherData.getTemperature(TemperatureDay[i]) + ", " + weatherData.getPressure(PressureDay[i]) + ", " +
+                        weatherData.getHumidity(HumidityDay[i]) + ", " + weatherData.getWindSpeed(WindSpeedDay[i]) + ", " + DescriptionDay[i];
+            }
+
+            destinationForecastDay1.setText(forecastDay[0]);
+            destinationForecastDay2.setText(forecastDay[1]);
+            destinationForecastDay3.setText(forecastDay[2]);
+            destinationForecastDay4.setText(forecastDay[3]);
+            destinationForecastDay5.setText(forecastDay[4]);
+        }
     }
+
+    private boolean cityNameIsValid() {
+        String pattern = "^([a-zA-Z\u0080-\u024F]+(?:(\\.) |-| |'))*[a-zA-Z\u0080-\u024F]*$";
+        if (chosenLocation.getText().isEmpty()) {
+            errorCityNotFound.setText("Nie wybrano żadnego miasta!");
+            return false;
+        }
+        if (!chosenLocation.getText().matches(pattern)) {
+            errorCityNotFound.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
+            return false;
+        }
+        return true;
+    }
+
+
 }
