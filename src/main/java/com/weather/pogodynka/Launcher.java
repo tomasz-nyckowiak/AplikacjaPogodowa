@@ -2,6 +2,7 @@ package com.weather.pogodynka;
 
 import com.weather.pogodynka.controller.MainWindowController;
 import com.weather.pogodynka.controller.StartWindowController;
+import com.weather.pogodynka.controller.persistence.PersistenceAccess;
 import com.weather.pogodynka.view.ViewFactory;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,42 +20,24 @@ import java.net.Socket;
 import java.net.URL;
 
 public class Launcher extends Application {
+    private PersistenceAccess persistenceAccess = new PersistenceAccess();
 
     public static void main(String[] args) {
         launch();
     }
 
-    //private StartWindowController startWindowController = new StartWindowController();
-    //private MainWindowController mainWindowController = new MainWindowController();
-
     @Override
-    public void start(Stage stage) throws Exception {
-        try {
-            ViewFactory viewFactory = new ViewFactory(new WeatherManager());
+    public void start(Stage stage) {
+        ViewFactory viewFactory = new ViewFactory(new WeatherManager());
+        if (persistenceAccess.isCityNameFromFileValid()) {
+            viewFactory.showMainWindow();
+        } else {
             viewFactory.showStartWindow();
-            /*if () {
-
-            }*/
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        /*FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(this.getClass().getResource("view/MainWindow.fxml"));
-        fxmlLoader.setController(mainWindowController);
-        Scene scene = new Scene(fxmlLoader.load());
-        String css = this.getClass().getResource("view/css/main.css").toExternalForm();
-        scene.getStylesheets().add(css);
-        mainWindowController.weatherForecastForUserLocation();*/
-
-        /*FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("view/StartWindow.fxml"));
-        fxmlLoader.setController(startWindowController);
-        Scene scene = new Scene(fxmlLoader.load());
-
-        stage.setScene(scene);
-        stage.show();*/
     }
+
+
+
 
 
 

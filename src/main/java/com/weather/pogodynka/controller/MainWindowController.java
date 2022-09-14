@@ -2,7 +2,9 @@ package com.weather.pogodynka.controller;
 
 import com.google.gson.Gson;
 import com.weather.pogodynka.Dates;
+import com.weather.pogodynka.UserDefaultLocation;
 import com.weather.pogodynka.WeatherManager;
+import com.weather.pogodynka.controller.persistence.PersistenceAccess;
 import com.weather.pogodynka.model.Destination;
 import com.weather.pogodynka.model.Weather;
 import com.weather.pogodynka.model.WeatherData;
@@ -20,9 +22,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 
-import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 public class MainWindowController extends BaseController {
@@ -76,18 +75,22 @@ public class MainWindowController extends BaseController {
     @FXML
     private Label destinationForecastDay5;
     @FXML
-    private Label errorCityNotFound;
+    private Label errorCityNotFoundLeft;
     @FXML
-    private Label errorCityNotFound1;
+    private Label errorCityNotFoundRight;
     @FXML
-    private Label searchResult;
+    private Label searchResultLeft;
     @FXML
-    private Label searchResult1;
+    private Label searchResultRight;
+    @FXML
+    private Label resetDefaultCityConfirmation;
 
     @FXML
-    private Button searchButton;
+    private Button searchButtonLeft;
     @FXML
-    private Button searchButton1;
+    private Button searchButtonRight;
+    @FXML
+    private Button resetDefaultCityButton;
 
     @FXML
     private ImageView myImageView;
@@ -117,13 +120,15 @@ public class MainWindowController extends BaseController {
     private WeatherService weatherService = new WeatherService();
     private Geocoding geocoding = new Geocoding();
     WeatherData weatherData = new WeatherData();
+    private UserDefaultLocation userDefaultLocation = new UserDefaultLocation();
+    private PersistenceAccess persistenceAccess = new PersistenceAccess();
 
     public MainWindowController(WeatherManager weatherManager, ViewFactory viewFactory, String fxmlName) {
         super(weatherManager, viewFactory, fxmlName);
     }
 
-    public void weatherForecastForUserLocation() {
-        TextField textField = new TextField("Zielona Góra");
+    public void weatherForecastForUserLocation(String location) {
+        TextField textField = new TextField(location);
         String userLocation = textField.textProperty().getValue();
         defaultLocation.setText(userLocation);
         geocoding.setUserInput(userLocation);
@@ -140,7 +145,7 @@ public class MainWindowController extends BaseController {
 
         Dates dates = new Dates();
         String[] days = dates.getForecastDays();
-        String lokalny = dates.setTodayDate();
+        String localDate = dates.setTodayDate();
 
         day1.setText(days[0]);
         day2.setText(days[1]);
@@ -157,7 +162,6 @@ public class MainWindowController extends BaseController {
 
         // GETTING ICON
         String iconCode = (String) innerMap.get("icon");
-       // Image image = new Image("http://openweathermap.org/img/wn/10d@2x.png");
         Icons icons = new Icons();
         icons.setIconCode(iconCode);
         Image image = new Image(icons.getIconCode());
@@ -175,7 +179,7 @@ public class MainWindowController extends BaseController {
         String windSpeedAsString = weather.getCurrent().get("wind_speed").toString();
         String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
 
-        currentDateAndTime.setText(lokalny);
+        currentDateAndTime.setText(localDate);
         currentTemperature.setText(temperature);
         currentTemperature.setFont(new Font("Arial", 18));
         currentWeather.setText(pressure + ", " + humidity + ", " + windSpeed + ",");
@@ -228,205 +232,262 @@ public class MainWindowController extends BaseController {
     }
 
     @FXML
-    public void search() {
-        errorCityNotFound1.setText("");
-        if (cityNameIsValid()) {
-            String userDestinationInput;
-            userDestinationInput = chosenLocation.getText();
-            geocoding.setUserInput(userDestinationInput);
-            StringBuffer content = geocoding.getDestination();
-            Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
+    public void searchRight() {
+        errorCityNotFoundRight.setText("");
+        try {
+            if (cityNameOnRightIsValid()) {
+                String userDestinationInput;
+                userDestinationInput = chosenLocation.getText();
+                geocoding.setUserInput(userDestinationInput);
+                StringBuffer content = geocoding.getDestination();
+                Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
 
-            double latitude = destination[0].getLat();
-            double longitude = destination[0].getLon();
-            String lat = weatherData.getCoordinates(latitude);
-            String lon = weatherData.getCoordinates(longitude);
+                double latitude = destination[0].getLat();
+                double longitude = destination[0].getLon();
+                String lat = weatherData.getCoordinates(latitude);
+                String lon = weatherData.getCoordinates(longitude);
 
-            weatherService.settingLat(lat);
-            weatherService.settingLon(lon);
+                weatherService.settingLat(lat);
+                weatherService.settingLon(lon);
 
-            String country = destination[0].getCountry();
-            String namePL = destination[0].getNames().get("pl").toString();
+                String country = destination[0].getCountry();
+                String namePL = destination[0].getNames().get("pl").toString();
 
-            searchResult1.setText(namePL + ", " + country);
+                searchResultRight.setText(namePL + ", " + country);
 
-            StringBuffer contentWeather = weatherService.getWeather();
-            Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
+                StringBuffer contentWeather = weatherService.getWeather();
+                Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
 
-            // CURRENT WEATHER
-            List test = (List) weather.getCurrent().get("weather");
-            Map innerMap = (Map) test.get(0);
-            String desc = (String) innerMap.get("description");
+                // CURRENT WEATHER
+                List test = (List) weather.getCurrent().get("weather");
+                Map innerMap = (Map) test.get(0);
+                String desc = (String) innerMap.get("description");
 
-            // GETTING ICON
-            String iconCode = (String) innerMap.get("icon");
-            Icons icons = new Icons();
-            icons.setIconCode(iconCode);
-            Image image = new Image(icons.getIconCode());
-            myImageView1.setImage(image);
+                // GETTING ICON
+                String iconCode = (String) innerMap.get("icon");
+                Icons icons = new Icons();
+                icons.setIconCode(iconCode);
+                Image image = new Image(icons.getIconCode());
+                myImageView1.setImage(image);
 
-            String temperatureAsString = weather.getCurrent().get("temp").toString();
-            String temperature = weatherData.getTemperature(temperatureAsString);
+                String temperatureAsString = weather.getCurrent().get("temp").toString();
+                String temperature = weatherData.getTemperature(temperatureAsString);
 
-            String pressureAsString = weather.getCurrent().get("pressure").toString();
-            String pressure = weatherData.getPressure(pressureAsString);
+                String pressureAsString = weather.getCurrent().get("pressure").toString();
+                String pressure = weatherData.getPressure(pressureAsString);
 
-            String humidityAsString = weather.getCurrent().get("humidity").toString();
-            String humidity = weatherData.getHumidity(humidityAsString);
+                String humidityAsString = weather.getCurrent().get("humidity").toString();
+                String humidity = weatherData.getHumidity(humidityAsString);
 
-            String windSpeedAsString = weather.getCurrent().get("wind_speed").toString();
-            String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
+                String windSpeedAsString = weather.getCurrent().get("wind_speed").toString();
+                String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
 
-            currentTemperature1.setText(temperature);
-            currentTemperature1.setFont(new Font("Arial", 18));
-            currentWeather1.setText(pressure + ", " + humidity + ", " + windSpeed + ",");
-            currentWeatherDescription1.setText(desc);
+                currentTemperature1.setText(temperature);
+                currentTemperature1.setFont(new Font("Arial", 18));
+                currentWeather1.setText(pressure + ", " + humidity + ", " + windSpeed + ",");
+                currentWeatherDescription1.setText(desc);
 
-            // DAILY
-            String[] forecastDay = new String[5];
-            String[] TemperatureDay = new String[5];
-            String[] PressureDay = new String[5];
-            String[] HumidityDay = new String[5];
-            String[] WindSpeedDay = new String[5];
-            String[] DescriptionDay = new String[5];
-            String[] IconsCodes = new String[5];
+                // DAILY
+                String[] forecastDay = new String[5];
+                String[] TemperatureDay = new String[5];
+                String[] PressureDay = new String[5];
+                String[] HumidityDay = new String[5];
+                String[] WindSpeedDay = new String[5];
+                String[] DescriptionDay = new String[5];
+                String[] IconsCodes = new String[5];
 
-            for (int i = 0; i <= 4; i++) {
-                TemperatureDay[i] = weather.getDaily()[i+1].getTemperature();
-                PressureDay[i] = weather.getDaily()[i+1].getPressure();
-                HumidityDay[i] = weather.getDaily()[i+1].getHumidity();
-                WindSpeedDay[i] = weather.getDaily()[i+1].getWindSpeed();
-                DescriptionDay[i] = weather.getDaily()[i+1].getSecondWeather()[0].getDescription();
-                forecastDay[i] = weatherData.getTemperature(TemperatureDay[i]) + ", " + weatherData.getPressure(PressureDay[i]) + ", " +
-                        weatherData.getHumidity(HumidityDay[i]) + ", " + weatherData.getWindSpeed(WindSpeedDay[i]) + ", " + DescriptionDay[i];
-                IconsCodes[i] = weather.getDaily()[i+1].getSecondWeather()[0].getIcon();
+                for (int i = 0; i <= 4; i++) {
+                    TemperatureDay[i] = weather.getDaily()[i + 1].getTemperature();
+                    PressureDay[i] = weather.getDaily()[i + 1].getPressure();
+                    HumidityDay[i] = weather.getDaily()[i + 1].getHumidity();
+                    WindSpeedDay[i] = weather.getDaily()[i + 1].getWindSpeed();
+                    DescriptionDay[i] = weather.getDaily()[i + 1].getSecondWeather()[0].getDescription();
+                    forecastDay[i] = weatherData.getTemperature(TemperatureDay[i]) + ", " + weatherData.getPressure(PressureDay[i]) + ", " +
+                            weatherData.getHumidity(HumidityDay[i]) + ", " + weatherData.getWindSpeed(WindSpeedDay[i]) + ", " + DescriptionDay[i];
+                    IconsCodes[i] = weather.getDaily()[i + 1].getSecondWeather()[0].getIcon();
+                }
+
+                icons.setIconCode(IconsCodes[0]);
+                Image image06 = new Image(icons.getIconCode());
+                myImageView06.setImage(image06);
+                destinationForecastDay1.setText(forecastDay[0]);
+
+                icons.setIconCode(IconsCodes[1]);
+                Image image07 = new Image(icons.getIconCode());
+                myImageView07.setImage(image07);
+                destinationForecastDay2.setText(forecastDay[1]);
+
+                icons.setIconCode(IconsCodes[2]);
+                Image image08 = new Image(icons.getIconCode());
+                myImageView08.setImage(image08);
+                destinationForecastDay3.setText(forecastDay[2]);
+
+                icons.setIconCode(IconsCodes[3]);
+                Image image09 = new Image(icons.getIconCode());
+                myImageView09.setImage(image09);
+                destinationForecastDay4.setText(forecastDay[3]);
+
+                icons.setIconCode(IconsCodes[4]);
+                Image image10 = new Image(icons.getIconCode());
+                myImageView10.setImage(image10);
+                destinationForecastDay5.setText(forecastDay[4]);
             }
-
-            icons.setIconCode(IconsCodes[0]);
-            Image image06 = new Image(icons.getIconCode());
-            myImageView06.setImage(image06);
-            destinationForecastDay1.setText(forecastDay[0]);
-
-            icons.setIconCode(IconsCodes[1]);
-            Image image07 = new Image(icons.getIconCode());
-            myImageView07.setImage(image07);
-            destinationForecastDay2.setText(forecastDay[1]);
-
-            icons.setIconCode(IconsCodes[2]);
-            Image image08 = new Image(icons.getIconCode());
-            myImageView08.setImage(image08);
-            destinationForecastDay3.setText(forecastDay[2]);
-
-            icons.setIconCode(IconsCodes[3]);
-            Image image09 = new Image(icons.getIconCode());
-            myImageView09.setImage(image09);
-            destinationForecastDay4.setText(forecastDay[3]);
-
-            icons.setIconCode(IconsCodes[4]);
-            Image image10 = new Image(icons.getIconCode());
-            myImageView10.setImage(image10);
-            destinationForecastDay5.setText(forecastDay[4]);
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
+            errorCityNotFoundRight.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
         }
     }
 
     @FXML
     public void searchLeft() {
-        errorCityNotFound.setText("");
-        if (cityNameIsValid()) {
-            String userDestinationInput;
-            userDestinationInput = defaultLocation.getText();
-            geocoding.setUserInput(userDestinationInput);
-            StringBuffer content = geocoding.getDestination();
-            Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
+        errorCityNotFoundLeft.setText("");
+        try {
+            if (cityNameOnLeftIsValid()) {
+                String userDestinationInput;
+                userDestinationInput = defaultLocation.getText();
+                geocoding.setUserInput(userDestinationInput);
+                StringBuffer content = geocoding.getDestination();
+                Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
 
-            double latitude = destination[0].getLat();
-            double longitude = destination[0].getLon();
-            String lat = weatherData.getCoordinates(latitude);
-            String lon = weatherData.getCoordinates(longitude);
+                double latitude = destination[0].getLat();
+                double longitude = destination[0].getLon();
+                String lat = weatherData.getCoordinates(latitude);
+                String lon = weatherData.getCoordinates(longitude);
 
-            weatherService.settingLat(lat);
-            weatherService.settingLon(lon);
+                weatherService.settingLat(lat);
+                weatherService.settingLon(lon);
 
-            String country = destination[0].getCountry();
-            String namePL = destination[0].getNames().get("pl").toString();
+                String country = destination[0].getCountry();
+                String namePL = destination[0].getNames().get("pl").toString();
 
-            searchResult.setText(namePL + ", " + country);
+                searchResultLeft.setText(namePL + ", " + country);
 
-            StringBuffer contentWeather = weatherService.getWeather();
-            Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
+                StringBuffer contentWeather = weatherService.getWeather();
+                Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
 
-            // DAILY
-            String[] forecastDay = new String[5];
-            String[] TemperatureDay = new String[5];
-            String[] PressureDay = new String[5];
-            String[] HumidityDay = new String[5];
-            String[] WindSpeedDay = new String[5];
-            String[] DescriptionDay = new String[5];
-            String[] IconsCodes = new String[5];
+                // DAILY
+                String[] forecastDay = new String[5];
+                String[] TemperatureDay = new String[5];
+                String[] PressureDay = new String[5];
+                String[] HumidityDay = new String[5];
+                String[] WindSpeedDay = new String[5];
+                String[] DescriptionDay = new String[5];
+                String[] IconsCodes = new String[5];
 
-            for (int i = 0; i <= 4; i++) {
-                TemperatureDay[i] = weather.getDaily()[i+1].getTemperature();
-                PressureDay[i] = weather.getDaily()[i+1].getPressure();
-                HumidityDay[i] = weather.getDaily()[i+1].getHumidity();
-                WindSpeedDay[i] = weather.getDaily()[i+1].getWindSpeed();
-                DescriptionDay[i] = weather.getDaily()[i+1].getSecondWeather()[0].getDescription();
-                forecastDay[i] = weatherData.getTemperature(TemperatureDay[i]) + ", " + weatherData.getPressure(PressureDay[i]) + ", " +
-                        weatherData.getHumidity(HumidityDay[i]) + ", " + weatherData.getWindSpeed(WindSpeedDay[i]) + ", " + DescriptionDay[i];
-                IconsCodes[i] = weather.getDaily()[i+1].getSecondWeather()[0].getIcon();
+                for (int i = 0; i <= 4; i++) {
+                    TemperatureDay[i] = weather.getDaily()[i + 1].getTemperature();
+                    PressureDay[i] = weather.getDaily()[i + 1].getPressure();
+                    HumidityDay[i] = weather.getDaily()[i + 1].getHumidity();
+                    WindSpeedDay[i] = weather.getDaily()[i + 1].getWindSpeed();
+                    DescriptionDay[i] = weather.getDaily()[i + 1].getSecondWeather()[0].getDescription();
+                    forecastDay[i] = weatherData.getTemperature(TemperatureDay[i]) + ", " + weatherData.getPressure(PressureDay[i]) + ", " +
+                            weatherData.getHumidity(HumidityDay[i]) + ", " + weatherData.getWindSpeed(WindSpeedDay[i]) + ", " + DescriptionDay[i];
+                    IconsCodes[i] = weather.getDaily()[i + 1].getSecondWeather()[0].getIcon();
+                }
+
+                Icons icons = new Icons();
+
+                icons.setIconCode(IconsCodes[0]);
+                Image image01 = new Image(icons.getIconCode());
+                myImageView01.setImage(image01);
+                localForecastDay1.setText(forecastDay[0]);
+
+                icons.setIconCode(IconsCodes[1]);
+                Image image02 = new Image(icons.getIconCode());
+                myImageView02.setImage(image02);
+                localForecastDay2.setText(forecastDay[1]);
+
+                icons.setIconCode(IconsCodes[2]);
+                Image image03 = new Image(icons.getIconCode());
+                myImageView03.setImage(image03);
+                localForecastDay3.setText(forecastDay[2]);
+
+                icons.setIconCode(IconsCodes[3]);
+                Image image04 = new Image(icons.getIconCode());
+                myImageView04.setImage(image04);
+                localForecastDay4.setText(forecastDay[3]);
+
+                icons.setIconCode(IconsCodes[4]);
+                Image image05 = new Image(icons.getIconCode());
+                myImageView05.setImage(image05);
+                localForecastDay5.setText(forecastDay[4]);
             }
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
+            errorCityNotFoundLeft.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
+        }
+    }
 
-            Icons icons = new Icons();
-
-            icons.setIconCode(IconsCodes[0]);
-            Image image01 = new Image(icons.getIconCode());
-            myImageView01.setImage(image01);
-            localForecastDay1.setText(forecastDay[0]);
-
-            icons.setIconCode(IconsCodes[1]);
-            Image image02 = new Image(icons.getIconCode());
-            myImageView02.setImage(image02);
-            localForecastDay2.setText(forecastDay[1]);
-
-            icons.setIconCode(IconsCodes[2]);
-            Image image03 = new Image(icons.getIconCode());
-            myImageView03.setImage(image03);
-            localForecastDay3.setText(forecastDay[2]);
-
-            icons.setIconCode(IconsCodes[3]);
-            Image image04 = new Image(icons.getIconCode());
-            myImageView04.setImage(image04);
-            localForecastDay4.setText(forecastDay[3]);
-
-            icons.setIconCode(IconsCodes[4]);
-            Image image05 = new Image(icons.getIconCode());
-            myImageView05.setImage(image05);
-            localForecastDay5.setText(forecastDay[4]);
+    @FXML
+    public void defaultLocationActionOnEnter(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            searchLeft();
         }
     }
 
     @FXML
     public void actionOnEnter(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            search();
+            searchRight();
         }
     }
 
-    private boolean cityNameIsValid() {
+    private boolean cityNameOnLeftIsValid() {
         String pattern = "^([a-zA-Z\u0080-\u024F]+(?:(\\.) |-| |'))*[a-zA-Z\u0080-\u024F]*$";
         try {
-            if (chosenLocation.getText().isEmpty()) {
-                errorCityNotFound.setText("Nie wybrano żadnego miasta!");
+            if (defaultLocation.getText().isEmpty()) {
+                errorCityNotFoundLeft.setText("Nie wybrano żadnego miasta!");
                 return false;
             }
-            if (!chosenLocation.getText().matches(pattern)) {
-                errorCityNotFound.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
+            if (!defaultLocation.getText().matches(pattern)) {
+                errorCityNotFoundLeft.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
                 return false;
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
-            errorCityNotFound.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
+            errorCityNotFoundLeft.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
             return false;
         }
         return true;
+    }
+
+    private boolean cityNameOnRightIsValid() {
+        String pattern = "^([a-zA-Z\u0080-\u024F]+(?:(\\.) |-| |'))*[a-zA-Z\u0080-\u024F]*$";
+        try {
+            if (chosenLocation.getText().isEmpty()) {
+                errorCityNotFoundRight.setText("Nie wybrano żadnego miasta!");
+                return false;
+            }
+            if (!chosenLocation.getText().matches(pattern)) {
+                errorCityNotFoundRight.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
+                return false;
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            errorCityNotFoundRight.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
+            return false;
+        }
+        return true;
+    }
+
+    @FXML
+    public void resetDefaultCity() {
+        if (persistenceAccess.isCityNameFromFileValid()) {
+            persistenceAccess.resetDefaultCityName();
+            resetDefaultCityConfirmation.setText("Usunięto domyślne miasto!");
+        }
+    }
+
+    @FXML
+    private void initialize() {
+        try {
+            String userLocationFromFile = persistenceAccess.loadUserCityNameFromFile();
+            if (userLocationFromFile == null) {
+                String userLocation = userDefaultLocation.getUserDefaultLocation();
+                weatherForecastForUserLocation(userLocation);
+            } else {
+                weatherForecastForUserLocation(userLocationFromFile);
+            }
+        } catch (NullPointerException e) {
+            System.out.println("ERROR!");
+        }
     }
 }
