@@ -1,5 +1,8 @@
 package com.weather.pogodynka.controller.persistence;
 
+import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+
 import java.io.*;
 import java.util.Scanner;
 
@@ -15,12 +18,11 @@ public class PersistenceAccess {
             return cityName;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            System.out.println("Nie znaleziono pliku!");
             return null;
         }
     }
 
-    public void saveUserCityNameToFile(String cityName) {
+    public void saveUserCityNameToFile(String cityName, Label errorMessage) {
         try {
             String path = "miasto.txt";
             FileWriter fileWriter = new FileWriter(path);
@@ -29,33 +31,37 @@ public class PersistenceAccess {
             bufferedWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
+            errorMessage.setText("Wystąpił błąd! Spróbuj później!");
+            errorMessage.setTextFill(Color.valueOf("#e12121"));
         }
     }
 
     public boolean isCityNameFromFileValid() {
-        String cityName = loadUserCityNameFromFile();
-        try {
-            if (cityName.isEmpty()) {
+        String pattern = "^([a-zA-Z\u0080-\u024F]+(?:(\\.) |-| |'))*[a-zA-Z\u0080-\u024F]*$";
+        String userLocationFromFile = loadUserCityNameFromFile();
+
+        if (userLocationFromFile != null) {
+            if (!userLocationFromFile.matches(pattern)) {
                 return false;
             } else {
                 return true;
             }
-        } catch (NullPointerException e) {
-            //e.printStackTrace();
-            System.out.println("Plik jest pusty!");
-            return false;
-        }
+        } else return false;
     }
 
-    public void resetDefaultCityName() {
+    public void resetDefaultCityName(Label errorMessage) {
         try {
             String path = "miasto.txt";
             FileWriter fileWriter = new FileWriter(path);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             bufferedWriter.write("");
             bufferedWriter.close();
+            errorMessage.setText("Usunięto domyślne miasto!");
+            errorMessage.setTextFill(Color.GREEN);
         } catch (IOException e) {
             e.printStackTrace();
+            errorMessage.setText("Wystąpił błąd! Spróbuj jeszcze raz!");
+            errorMessage.setTextFill(Color.valueOf("#e12121"));
         }
     }
 }

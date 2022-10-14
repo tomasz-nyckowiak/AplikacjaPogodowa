@@ -16,7 +16,7 @@
          </font></Label>
       <Button fx:id="searchCityButton" layoutX="353.0" layoutY="113.0" mnemonicParsing="false" onAction="#searchCity" text="Wyszukaj" />
       <Label fx:id="errorLabel" layoutX="151.0" layoutY="183.0" prefHeight="25.0" prefWidth="345.0" textFill="#e12121" />
-      <CheckBox fx:id="myCheckBox" disable="true" layoutX="151.0" layoutY="153.0" mnemonicParsing="false" onAction="#rememberMyCity" text="Zapamiętaj miasto" />
+      <CheckBox fx:id="myCheckBox" disable="true" layoutX="151.0" layoutY="153.0" mnemonicParsing="false" text="Zapamiętaj miasto" />
       <Button fx:id="showWeatherButton" disable="true" layoutX="229.0" layoutY="262.0" mnemonicParsing="false" onAction="#saveAndShowWeather" text="Pokaż pogodę" />
       <Label fx:id="searchResult" layoutX="151.0" layoutY="215.0" prefHeight="25.0" prefWidth="202.0" />
    </children>

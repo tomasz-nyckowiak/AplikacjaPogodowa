@@ -1,48 +1,27 @@
 package com.weather.pogodynka.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import javafx.scene.control.Label;
 
 public class WeatherService {
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall?";
-    private static final String API_KEY = "68400f7feeb86d6511a8bce5d0bd3036";
     private static final String LAT = "lat=";
-    private String latitude;
     private static final String LON = "&lon=";
-    private String longitude;
-    private String language = "&lang=pl";
-    private String unitsOfMeasurement = "&units=metric";
+    private static final String LANGUAGE = "&lang=pl";
+    private static final String UNITS_OF_MEASUREMENT = "&units=metric";
     private static final String LAST_PART = "&exclude=minutely,hourly&appid=";
 
-
-    public StringBuffer getWeather() {
-        StringBuffer content = new StringBuffer();
-        try {
-            URL url = new URL(WEATHER_URL + LAT + latitude + LON + longitude + language + unitsOfMeasurement + LAST_PART + API_KEY);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
-            }
-            in.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return content;
+    public StringBuffer getWeather(String secretKey, String latitude, String longitude, Label errorMessage) {
+        String correctPath = WEATHER_URL + LAT + latitude + LON + longitude + LANGUAGE + UNITS_OF_MEASUREMENT + LAST_PART + secretKey;
+        Connect connect = new Connect();
+        return connect.setConnection(correctPath, errorMessage);
     }
 
-    public void settingLat(String lat) {
-        latitude = lat;
-    }
-
-    public void settingLon(String lon) {
-        longitude = lon;
+    public StringBuffer isSecretKeyValid(String secretKey) {
+        String latitude = "51.94";
+        String longitude = "15.51";
+        Label label = new Label();
+        String exemplaryURL = WEATHER_URL + LAT + latitude + LON + longitude + LANGUAGE + UNITS_OF_MEASUREMENT + LAST_PART + secretKey;
+        Connect connect = new Connect();
+        return connect.setConnection(exemplaryURL, label);
     }
 }

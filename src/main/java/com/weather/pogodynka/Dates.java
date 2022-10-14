@@ -1,30 +1,27 @@
 package com.weather.pogodynka;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Dates {
-    private String[] days = new String[5];
+    private final String[] days = new String[5];
 
     public String[] getForecastDays() {
-        Calendar calendar = new GregorianCalendar();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        for (int i = 0; i <= 4; i++) {
-            calendar.add(Calendar.DAY_OF_MONTH, +1);
-            String nextDay = dateFormat.format(calendar.getTime());
-            days[i] = nextDay;
+        LocalDate currentLocalDate = LocalDate.now();
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        int NUMBER_OF_DAYS_FOR_FORECAST = 5;
+        for (int i = 0; i < NUMBER_OF_DAYS_FOR_FORECAST; i++) {
+            LocalDate nextDay = currentLocalDate.plusDays(i+1);
+            String nextDayAsString = nextDay.format(dateFormat);
+            days[i] = nextDayAsString;
         }
         return days;
     }
 
     public String setTodayDate() {
-        String pattern = "EEEEE, dd MMMMM, HH:mm";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, new Locale("pl", "PL"));
-
-        String date = simpleDateFormat.format(new Date());
-        return date;
+        LocalDateTime currentLocalDateTime = LocalDateTime.now();
+        DateTimeFormatter todayDate = DateTimeFormatter.ofPattern("EEEE, dd MMMM, HH:mm");
+        return currentLocalDateTime.format(todayDate);
     }
 }

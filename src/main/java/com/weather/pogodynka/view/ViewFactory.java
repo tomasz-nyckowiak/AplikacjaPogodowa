@@ -1,6 +1,6 @@
 package com.weather.pogodynka.view;
 
-import com.weather.pogodynka.WeatherManager;
+import com.weather.pogodynka.controller.APIKeyControllerWindow;
 import com.weather.pogodynka.controller.BaseController;
 import com.weather.pogodynka.controller.MainWindowController;
 import com.weather.pogodynka.controller.StartWindowController;
@@ -8,25 +8,20 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class ViewFactory {
-    private WeatherManager weatherManager;
-
-    public ViewFactory(WeatherManager weatherManager) {
-        this.weatherManager = weatherManager;
+    public void showAPIKeyWindow() {
+        BaseController controller = new APIKeyControllerWindow(this, "APIKeyWindow.fxml");
+        initializeStage(controller);
     }
-
     public void showStartWindow() {
-        System.out.println("start window called");
-        BaseController controller = new StartWindowController(weatherManager, this, "StartWindow.fxml");
+        BaseController controller = new StartWindowController(this, "StartWindow.fxml");
         initializeStage(controller);
     }
 
     public void showMainWindow() {
-        System.out.println("main window called");
-        BaseController controller = new MainWindowController(weatherManager, this, "MainWindow.fxml");
+        BaseController controller = new MainWindowController(this, "MainWindow.fxml");
         initializeStage(controller);
     }
 
@@ -43,7 +38,6 @@ public class ViewFactory {
         Scene scene = new Scene(parent);
         String css = getClass().getResource("css/main.css").toExternalForm();
         scene.getStylesheets().add(css);
-        //scene.getStylesheets().add(getClass().getResource("css/main.css").toExternalForm());
         Stage stage = new Stage();
         stage.setScene(scene);
         stage.show();
@@ -52,5 +46,4 @@ public class ViewFactory {
     public void closeStage(Stage stageToClose) {
         stageToClose.close();
     }
-
 }

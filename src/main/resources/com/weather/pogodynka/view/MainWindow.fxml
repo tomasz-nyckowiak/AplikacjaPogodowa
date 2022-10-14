@@ -66,19 +66,19 @@
       <Button fx:id="searchButtonRight" layoutX="750.0" layoutY="51.0" mnemonicParsing="false" onAction="#searchRight" text="Wyszukaj" />
       <Label fx:id="errorCityNotFoundRight" layoutX="500.0" layoutY="80.0" prefHeight="25.0" prefWidth="314.0" textFill="#e12121" />
       <Label fx:id="searchResultRight" layoutX="500.0" layoutY="216.0" prefHeight="25.0" prefWidth="250.0" />
-      <Label fx:id="currentTemperature" layoutX="96.0" layoutY="144.0" prefHeight="50.0" prefWidth="50.0" />
+      <Label fx:id="currentTemperature1" layoutX="96.0" layoutY="144.0" prefHeight="50.0" prefWidth="50.0" />
       <Label layoutX="313.0" layoutY="241.0" prefHeight="25.0" prefWidth="250.0" text="Prognoza pogody na najbliższe 5 dni:" />
-      <Label fx:id="currentWeather" layoutX="146.0" layoutY="150.0" prefHeight="25.0" prefWidth="250.0" />
-      <Label fx:id="currentWeatherDescription" layoutX="146.0" layoutY="175.0" prefHeight="25.0" prefWidth="250.0" />
-      <ImageView fx:id="myImageView" fitHeight="50.0" fitWidth="50.0" layoutX="48.0" layoutY="144.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="currentWeather1" layoutX="146.0" layoutY="150.0" prefHeight="25.0" prefWidth="250.0" />
+      <Label fx:id="currentWeatherDescription1" layoutX="146.0" layoutY="175.0" prefHeight="25.0" prefWidth="250.0" />
+      <ImageView fx:id="myImageView1" fitHeight="50.0" fitWidth="50.0" layoutX="48.0" layoutY="144.0" pickOnBounds="true" preserveRatio="true" />
       <Button fx:id="searchButtonLeft" layoutX="277.0" layoutY="51.0" mnemonicParsing="false" onAction="#searchLeft" text="Wyszukaj" />
       <Label fx:id="errorCityNotFoundLeft" layoutX="27.0" layoutY="80.0" prefHeight="25.0" prefWidth="314.0" textFill="#e12121" />
       <Label fx:id="searchResultLeft" layoutX="27.0" layoutY="216.0" prefHeight="25.0" prefWidth="250.0" />
-      <ImageView fx:id="myImageView1" fitHeight="50.0" fitWidth="50.0" layoutX="500.0" layoutY="144.0" pickOnBounds="true" preserveRatio="true" />
-      <Label fx:id="currentTemperature1" layoutX="550.0" layoutY="144.0" prefHeight="50.0" prefWidth="50.0" />
-      <Label fx:id="currentWeather1" layoutX="600.0" layoutY="150.0" prefHeight="25.0" prefWidth="250.0" />
-      <Label fx:id="currentWeatherDescription1" layoutX="600.0" layoutY="175.0" prefHeight="25.0" prefWidth="250.0" />
+      <ImageView fx:id="myImageView2" fitHeight="50.0" fitWidth="50.0" layoutX="500.0" layoutY="144.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="currentTemperature2" layoutX="550.0" layoutY="144.0" prefHeight="50.0" prefWidth="50.0" />
+      <Label fx:id="currentWeather2" layoutX="600.0" layoutY="150.0" prefHeight="25.0" prefWidth="250.0" />
+      <Label fx:id="currentWeatherDescription2" layoutX="600.0" layoutY="175.0" prefHeight="25.0" prefWidth="250.0" />
       <Button fx:id="resetDefaultCityButton" layoutX="27.0" layoutY="547.0" mnemonicParsing="false" onAction="#resetDefaultCity" text="Wyresetuj domyślne miasto!" />
-      <Label fx:id="resetDefaultCityConfirmation" layoutX="27.0" layoutY="578.0" prefHeight="25.0" prefWidth="250.0" />
+      <Label fx:id="informationForUser" layoutX="27.0" layoutY="578.0" prefHeight="25.0" prefWidth="250.0" />
    </children>
 </AnchorPane>
