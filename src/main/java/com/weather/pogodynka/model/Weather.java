@@ -2,25 +2,23 @@ package com.weather.pogodynka.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Map;
-
 public class Weather {
     @SerializedName("current")
-    private Map<String, Object> current;
+    private Current current;
 
     @SerializedName("daily")
     private Daily[] daily;
 
-    public Weather(Map<String, Object> current, Daily[] daily) {
+    public Weather(Current current, Daily[] daily) {
         this.current = current;
         this.daily = daily;
     }
 
-    public Map<String, Object> getCurrent() {
+    public Current getCurrent() {
         return current;
     }
 
-    public void setCurrent(Map<String, Object> current) {
+    public void setCurrent(Current current) {
         this.current = current;
     }
 

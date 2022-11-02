@@ -5,9 +5,7 @@ import com.weather.pogodynka.Constants;
 import com.weather.pogodynka.Dates;
 import com.weather.pogodynka.UserDefaultLocation;
 import com.weather.pogodynka.controller.persistence.PersistenceAccess;
-import com.weather.pogodynka.model.Destination;
-import com.weather.pogodynka.model.Weather;
-import com.weather.pogodynka.model.WeatherData;
+import com.weather.pogodynka.model.*;
 import com.weather.pogodynka.service.Geocoding;
 import com.weather.pogodynka.service.Icons;
 import com.weather.pogodynka.service.WeatherService;
@@ -177,26 +175,26 @@ public class MainWindowController extends BaseController {
 
     private void todayWeather(StringBuffer content, ImageView icon, Label[] currentWeatherLabels) {
         Weather weather = new Gson().fromJson(content.toString(), Weather.class);
-        List myList = (List) weather.getCurrent().get("weather");
-        Map innerMap = (Map) myList.get(0);
-        String desc = (String) innerMap.get("description");
+        Current current = weather.getCurrent();
+        Optional<WeatherDetails> weatherDetails = current.getWeatherDetails().stream().findFirst();
+        String desc = weatherDetails.map(WeatherDetails::getDescription).orElse("brak danych");
 
         // GETTING ICON
-        String iconCode = (String) innerMap.get("icon");
+        String iconCode = weatherDetails.map(WeatherDetails::getIcon).orElse("domyślny kod ikony");
         Icons icons = new Icons();
         Image image = new Image(icons.getImageCode(iconCode));
         icon.setImage(image);
 
-        String temperatureAsString = weather.getCurrent().get("temp").toString();
+        String temperatureAsString = String.valueOf(weather.getCurrent().getTemp());
         String temperature = weatherData.getTemperature(temperatureAsString);
 
-        String pressureAsString = weather.getCurrent().get("pressure").toString();
+        String pressureAsString = String.valueOf(weather.getCurrent().getPressure());
         String pressure = weatherData.getPressure(pressureAsString);
 
-        String humidityAsString = weather.getCurrent().get("humidity").toString();
+        String humidityAsString = String.valueOf(weather.getCurrent().getHumidity());
         String humidity = weatherData.getHumidity(humidityAsString);
 
-        String windSpeedAsString = weather.getCurrent().get("wind_speed").toString();
+        String windSpeedAsString = String.valueOf(weather.getCurrent().getWindSpeed());
         String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
 
         currentWeatherLabels[0].setText(temperature);
