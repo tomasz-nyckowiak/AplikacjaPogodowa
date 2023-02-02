@@ -208,7 +208,8 @@ public class MainWindowController extends BaseController {
         try {
             String secretKey = Constants.getSecretKey();
             String userDestinationInput = cityName.getText();
-            StringBuffer content = geocoding.getDestination(secretKey, userDestinationInput, informationForUser);
+            geocoding.setLabel(informationForUser);
+            StringBuffer content = geocoding.getDestination(secretKey, userDestinationInput);
             Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
 
             double latitude = destination[0].getLat();
@@ -221,7 +222,7 @@ public class MainWindowController extends BaseController {
 
             searchResult.setText(namePL + ", " + country);
 
-            StringBuffer contentWeather = weatherService.getWeather(secretKey, lat, lon, informationForUser);
+            StringBuffer contentWeather = weatherService.getWeather(secretKey, lat, lon);
             Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
             todayWeather(contentWeather, currentWeatherIcon, currentWeatherLabels);
 
@@ -315,13 +316,14 @@ public class MainWindowController extends BaseController {
 
     @FXML
     public void resetDefaultCity() {
-        persistenceAccess.resetDefaultCityName(informationForUser);
+        persistenceAccess.setLabel(informationForUser);
+        persistenceAccess.resetDefaultCityName();
     }
 
     @FXML
     private void initialize() {
         try {
-            String userLocationFromFile = persistenceAccess.loadUserCityNameFromFile();
+            String userLocationFromFile = persistenceAccess.loadUserCityNameFromFile(persistenceAccess.getMyFilePath());
             if (userLocationFromFile == null) {
                 String userLocation = userDefaultLocation.getUserDefaultLocation();
                 weatherForecastForUserLocation(userLocation);

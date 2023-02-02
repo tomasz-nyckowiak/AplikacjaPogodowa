@@ -49,7 +49,8 @@ public class StartWindowController extends BaseController {
             if (cityNameIsValid()) {
                 String secretKey = Constants.getSecretKey();
                 String userInput = chosenCity.getText();
-                StringBuffer content = geocoding.getDestination(secretKey, userInput, errorLabel);
+                geocoding.setLabel(errorLabel);
+                StringBuffer content = geocoding.getDestination(secretKey, userInput);
                 Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
 
                 String country = destination[0].getCountry();
@@ -105,7 +106,8 @@ public class StartWindowController extends BaseController {
         if (searchedCityIsValid) {
             if (myCheckBox.isSelected()) {
                 String userCityName = userDefaultLocation.getUserDefaultLocation();
-                persistenceAccess.saveUserCityNameToFile(userCityName, errorLabel);
+                persistenceAccess.setLabel(errorLabel);
+                persistenceAccess.saveUserCityNameToFile(userCityName);
             }
             viewFactory.showMainWindow();
             Stage stage = (Stage) errorLabel.getScene().getWindow();

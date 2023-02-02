@@ -2,6 +2,7 @@ package com.weather.pogodynka;
 
 public class Constants {
     private static String secretKey = "";
+
     public static final String PATTERN = "^([a-zA-Z\u0080-\u024F]+(?:(\\.) |-| |'))*[a-zA-Z\u0080-\u024F]*$";
     // Above is regular expression for city name, accepts only letters, spaces and dashes(-).
     // ^ - matches the start of a string without consuming any characters

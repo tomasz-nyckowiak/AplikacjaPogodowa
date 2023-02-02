@@ -10,7 +10,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Connect {
-    public StringBuffer setConnection(String usedURLPath, Label errorMessage) {
+
+    private final Geocoding geocoding = new Geocoding();
+
+    public StringBuffer setConnection(String usedURLPath) {
         StringBuffer content = new StringBuffer();
         try {
             URL url = new URL(usedURLPath);
@@ -25,6 +28,7 @@ public class Connect {
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
+            Label errorMessage = geocoding.getLabel();
             errorMessage.setText("Wystąpił błąd!");
             errorMessage.setTextFill(Color.valueOf("#e12121"));
             StringBuffer error = new StringBuffer();
