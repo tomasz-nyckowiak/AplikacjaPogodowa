@@ -1,8 +1,5 @@
 package com.weather.pogodynka.service;
 
-import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,8 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Connect {
-
-    private final Geocoding geocoding = new Geocoding();
 
     public StringBuffer setConnection(String usedURLPath) {
         StringBuffer content = new StringBuffer();
@@ -27,14 +22,11 @@ public class Connect {
             }
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            Label errorMessage = geocoding.getLabel();
-            errorMessage.setText("Wystąpił błąd!");
-            errorMessage.setTextFill(Color.valueOf("#e12121"));
             StringBuffer error = new StringBuffer();
             error.append("Podano nieprawidłowy klucz!");
             content = error;
         }
+        //System.out.println(content);
         return content;
     }
 }

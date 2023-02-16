@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IconsTest {
 
-    Icons icons = new Icons();
-
     @Test
     void getImageCodeTest() {
         //given
@@ -16,7 +14,7 @@ class IconsTest {
         String exampleCorrectImageCode = "10d";
 
         //when
-        String result = icons.getImageCode(exampleCorrectImageCode);
+        String result = Icons.getImageCode(exampleCorrectImageCode);
 
         //then
         assertThat(result).isEqualTo(exampleCorrectIconURL);

@@ -1,5 +1,7 @@
 package com.weather.pogodynka.service;
 
+import com.weather.pogodynka.Constants;
+
 public class WeatherService {
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall?";
     private static final String LAT = "lat=";
@@ -8,7 +10,8 @@ public class WeatherService {
     private static final String UNITS_OF_MEASUREMENT = "&units=metric";
     private static final String LAST_PART = "&exclude=minutely,hourly&appid=";
 
-    public StringBuffer getWeather(String secretKey, String latitude, String longitude) {
+    public StringBuffer getWeather(String latitude, String longitude) {
+        String secretKey = Constants.getSecretKey();
         String correctPath = WEATHER_URL + LAT + latitude + LON + longitude + LANGUAGE + UNITS_OF_MEASUREMENT + LAST_PART + secretKey;
         Connect connect = new Connect();
         return connect.setConnection(correctPath);
@@ -17,7 +20,6 @@ public class WeatherService {
     public StringBuffer isSecretKeyValid(String secretKey) {
         String latitude = "51.94";
         String longitude = "15.51";
-        //Label label = new Label();
         String exemplaryURL = WEATHER_URL + LAT + latitude + LON + longitude + LANGUAGE + UNITS_OF_MEASUREMENT + LAST_PART + secretKey;
         Connect connect = new Connect();
         return connect.setConnection(exemplaryURL);

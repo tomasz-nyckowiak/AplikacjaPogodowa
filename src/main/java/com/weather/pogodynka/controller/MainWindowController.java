@@ -18,6 +18,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import java.util.*;
@@ -120,7 +121,7 @@ public class MainWindowController extends BaseController {
 
     private final WeatherService weatherService = new WeatherService();
     private final Geocoding geocoding = new Geocoding();
-    private final WeatherData weatherData = new WeatherData();
+    //private final WeatherData weatherData = new WeatherData();
     private final UserDefaultLocation userDefaultLocation = new UserDefaultLocation();
     private final PersistenceAccess persistenceAccess = new PersistenceAccess();
 
@@ -174,94 +175,55 @@ public class MainWindowController extends BaseController {
     }
 
     private void todayWeather(StringBuffer content, ImageView icon, Label[] currentWeatherLabels) {
-        Weather weather = new Gson().fromJson(content.toString(), Weather.class);
-        Current current = weather.getCurrent();
-        Optional<WeatherDetails> weatherDetails = current.getWeatherDetails().stream().findFirst();
-        String desc = weatherDetails.map(WeatherDetails::getDescription).orElse("brak danych");
+        String[] output = Current.gettingCurrentWeatherOutput(content);
+        //System.out.println(Arrays.toString(output));
 
         // GETTING ICON
-        String iconCode = weatherDetails.map(WeatherDetails::getIcon).orElse("domyślny kod ikony");
-        Icons icons = new Icons();
-        Image image = new Image(icons.getImageCode(iconCode));
+        String iconCode = Icons.imageCode;
+        Image image = new Image(Icons.getImageCode(iconCode));
         icon.setImage(image);
 
-        String temperatureAsString = String.valueOf(weather.getCurrent().getTemp());
-        String temperature = weatherData.getTemperature(temperatureAsString);
-
-        String pressureAsString = String.valueOf(weather.getCurrent().getPressure());
-        String pressure = weatherData.getPressure(pressureAsString);
-
-        String humidityAsString = String.valueOf(weather.getCurrent().getHumidity());
-        String humidity = weatherData.getHumidity(humidityAsString);
-
-        String windSpeedAsString = String.valueOf(weather.getCurrent().getWindSpeed());
-        String windSpeed = weatherData.getWindSpeed(windSpeedAsString);
-
-        currentWeatherLabels[0].setText(temperature);
+        currentWeatherLabels[0].setText(output[0]);
         currentWeatherLabels[0].setFont(new Font("Arial", 18));
-        currentWeatherLabels[1].setText(pressure + ", " + humidity + ", " + windSpeed + ",");
-        currentWeatherLabels[2].setText(desc);
+        currentWeatherLabels[1].setText(output[1] + ", " + output[2] + ", " + output[3] + ",");
+        currentWeatherLabels[2].setText(output[4]);
     }
 
     private void searchCity(TextField cityName, Label searchResult, Label[] forecastDescription, ImageView[] weatherIcons, Label errorCityNotFound,
                             ImageView currentWeatherIcon, Label[] currentWeatherLabels) {
         try {
-            String secretKey = Constants.getSecretKey();
             String userDestinationInput = cityName.getText();
-            geocoding.setLabel(informationForUser);
-            StringBuffer content = geocoding.getDestination(secretKey, userDestinationInput);
-            Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
-
-            double latitude = destination[0].getLat();
-            double longitude = destination[0].getLon();
-            String lat = weatherData.getCoordinates(latitude);
-            String lon = weatherData.getCoordinates(longitude);
-
-            String country = destination[0].getCountry();
-            String namePL = destination[0].getNames().get("pl").toString();
+            StringBuffer content = geocoding.getDestination(userDestinationInput);
+            String[] output = Destination.gettingDestinationOutput(content);
+            String country = output[0];
+            String namePL = output[1];
+            String lat = output[2];
+            String lon = output[3];
 
             searchResult.setText(namePL + ", " + country);
 
-            StringBuffer contentWeather = weatherService.getWeather(secretKey, lat, lon);
-            Weather weather = new Gson().fromJson(contentWeather.toString(), Weather.class);
+            StringBuffer contentWeather = weatherService.getWeather(lat, lon);
+            //System.out.println(contentWeather);
             todayWeather(contentWeather, currentWeatherIcon, currentWeatherLabels);
 
-            // WEATHER FORECAST DATA FOR NEXT 5 DAYS (DAILY)
-            String[] forecastDay = new String[5];
-            String[] temperatureDay = new String[5];
-            String[] pressureDay = new String[5];
-            String[] humidityDay = new String[5];
-            String[] windSpeedDay = new String[5];
-            String[] descriptionDay = new String[5];
-            String[] iconsCodes = new String[5];
+            String[] weatherOutput = Weather.gettingWeatherOutput(contentWeather);
 
-            int NUMBER_OF_DAYS_FOR_FORECAST = 5;
-            for (int i = 0; i < NUMBER_OF_DAYS_FOR_FORECAST; i++) {
-                temperatureDay[i] = weather.getDaily()[i + 1].getTemperature();
-                pressureDay[i] = weather.getDaily()[i + 1].getPressure();
-                humidityDay[i] = weather.getDaily()[i + 1].getHumidity();
-                windSpeedDay[i] = weather.getDaily()[i + 1].getWindSpeed();
-                descriptionDay[i] = weather.getDaily()[i + 1].getSecondWeather()[0].getDescription();
-                forecastDay[i] = weatherData.getTemperature(temperatureDay[i]) + ", " + weatherData.getPressure(pressureDay[i]) + ", " +
-                        weatherData.getHumidity(humidityDay[i]) + ", " + weatherData.getWindSpeed(windSpeedDay[i]) + ", " + descriptionDay[i];
-                iconsCodes[i] = weather.getDaily()[i + 1].getSecondWeather()[0].getIcon();
+            for (int i = 0; i < weatherOutput.length; i++) {
+                setWeatherForecastDescription(weatherOutput, i, forecastDescription[i]);
             }
 
-            Icons icons = new Icons();
+            // SETTING ICONS
+            String[] iconsCodes = Icons.imagesCodes;
             for (int i = 0; i < iconsCodes.length; i++) {
-                setImages(icons, iconsCodes, i, weatherIcons[i]);
-            }
-
-            for (int i = 0; i < forecastDay.length; i++) {
-                setWeatherForecastDescription(forecastDay, i, forecastDescription[i]);
+                setImages(iconsCodes, i, weatherIcons[i]);
             }
         } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
             errorCityNotFound.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
         }
     }
 
-    private void setImages(Icons icons,  String[] iconsCodes, int iconIndex, ImageView imageView) {
-        Image image = new Image(icons.getImageCode(iconsCodes[iconIndex]));
+    private void setImages(String[] iconsCodes, int iconIndex, ImageView imageView) {
+        Image image = new Image(Icons.getImageCode(iconsCodes[iconIndex]));
         imageView.setImage(image);
     }
 
@@ -307,7 +269,6 @@ public class MainWindowController extends BaseController {
                 return false;
             }
         } catch (NullPointerException e) {
-            e.printStackTrace();
             errorCityNotFound.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
             return false;
         }
@@ -316,8 +277,13 @@ public class MainWindowController extends BaseController {
 
     @FXML
     public void resetDefaultCity() {
-        persistenceAccess.setLabel(informationForUser);
-        persistenceAccess.resetDefaultCityName();
+        if (Objects.equals(persistenceAccess.resetDefaultCityName(), "success")) {
+            informationForUser.setText("Usunięto domyślne miasto!");
+            informationForUser.setTextFill(Color.GREEN);
+        } else {
+            informationForUser.setText("Wystąpił błąd! Spróbuj później!");
+            informationForUser.setTextFill(Color.valueOf("#e12121"));
+        }
     }
 
     @FXML
@@ -331,8 +297,8 @@ public class MainWindowController extends BaseController {
                 weatherForecastForUserLocation(userLocationFromFile);
             }
         } catch (NullPointerException e) {
-            e.printStackTrace();
             informationForUser.setText("Wystąpił błąd!");
+            informationForUser.setTextFill(Color.valueOf("#e12121"));
         }
     }
 }

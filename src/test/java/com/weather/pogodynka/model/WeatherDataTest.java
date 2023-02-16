@@ -6,12 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WeatherDataTest {
 
-    WeatherData weatherData = new WeatherData();
-
     @Test
     void getTemperatureTest() {
         //given
-        String result = weatherData.getTemperature("20");
+        String result = WeatherData.getTemperature("20");
 
         //when
         //then
@@ -21,7 +19,7 @@ class WeatherDataTest {
     @Test
     void getPressureTest() {
         //given
-        String result = weatherData.getPressure("1000");
+        String result = WeatherData.getPressure("1000");
 
         //when
         //then
@@ -31,7 +29,7 @@ class WeatherDataTest {
     @Test
     void getHumidityTest() {
         //given
-        String result = weatherData.getHumidity("35");
+        String result = WeatherData.getHumidity("35");
 
         //when
         //then
@@ -41,7 +39,7 @@ class WeatherDataTest {
     @Test
     void getWindSpeedTest() {
         //given
-        String result = weatherData.getWindSpeed("2.5");
+        String result = WeatherData.getWindSpeed("2.5");
 
         //when
         //then
@@ -51,7 +49,7 @@ class WeatherDataTest {
     @Test
     void getCoordinatesTest() {
         //given
-        String result = weatherData.getCoordinates(51.94);
+        String result = WeatherData.getCoordinates(51.94);
 
         //when
         //then

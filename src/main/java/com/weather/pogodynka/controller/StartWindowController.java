@@ -1,6 +1,5 @@
 package com.weather.pogodynka.controller;
 
-import com.google.gson.Gson;
 import com.weather.pogodynka.Constants;
 import com.weather.pogodynka.UserDefaultLocation;
 import com.weather.pogodynka.controller.persistence.PersistenceAccess;
@@ -14,7 +13,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class StartWindowController extends BaseController {
     @FXML
@@ -47,14 +49,11 @@ public class StartWindowController extends BaseController {
         clearFields();
         try {
             if (cityNameIsValid()) {
-                String secretKey = Constants.getSecretKey();
                 String userInput = chosenCity.getText();
-                geocoding.setLabel(errorLabel);
-                StringBuffer content = geocoding.getDestination(secretKey, userInput);
-                Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
-
-                String country = destination[0].getCountry();
-                String namePL = destination[0].getNames().get("pl").toString();
+                StringBuffer content = geocoding.getDestination(userInput);
+                String[] output = Destination.gettingDestinationOutput(content);
+                String country = output[0];
+                String namePL = output[1];
 
                 searchResult.setText(namePL + ", " + country);
                 searchedCityIsValid = true;
@@ -64,7 +63,6 @@ public class StartWindowController extends BaseController {
                 userDefaultLocation.settingUserLocation(namePL);
             }
         } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
             errorLabel.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
         }
     }
@@ -94,7 +92,6 @@ public class StartWindowController extends BaseController {
                 return false;
             }
         } catch (NullPointerException e) {
-            e.printStackTrace();
             errorLabel.setText("Nie znaleziono! Sprawdź czy wpisana nazwa jest poprawna!");
             return false;
         }
@@ -106,8 +103,11 @@ public class StartWindowController extends BaseController {
         if (searchedCityIsValid) {
             if (myCheckBox.isSelected()) {
                 String userCityName = userDefaultLocation.getUserDefaultLocation();
-                persistenceAccess.setLabel(errorLabel);
-                persistenceAccess.saveUserCityNameToFile(userCityName);
+                if (Objects.equals(persistenceAccess.saveUserCityNameToFile(userCityName), "error")) {
+                    errorLabel.setText("Wystąpił niespodziewany błąd! Spróbuj później!");
+                    errorLabel.setTextFill(Color.valueOf("#e12121"));
+                    return;
+                }
             }
             viewFactory.showMainWindow();
             Stage stage = (Stage) errorLabel.getScene().getWindow();
