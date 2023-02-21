@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.weather.pogodynka.service.Icons;
 
-import java.util.Arrays;
-
 public class Weather {
     @SerializedName("current")
     private Current current;

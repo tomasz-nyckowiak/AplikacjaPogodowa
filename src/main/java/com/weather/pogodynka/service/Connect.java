@@ -26,7 +26,6 @@ public class Connect {
             error.append("Podano nieprawidłowy klucz!");
             content = error;
         }
-        //System.out.println(content);
         return content;
     }
 }

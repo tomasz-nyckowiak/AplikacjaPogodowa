@@ -8,6 +8,7 @@ class WeatherDataTest {
 
     @Test
     void getTemperatureTest() {
+
         //given
         String result = WeatherData.getTemperature("20");
 
@@ -18,6 +19,7 @@ class WeatherDataTest {
 
     @Test
     void getPressureTest() {
+
         //given
         String result = WeatherData.getPressure("1000");
 
@@ -28,6 +30,7 @@ class WeatherDataTest {
 
     @Test
     void getHumidityTest() {
+
         //given
         String result = WeatherData.getHumidity("35");
 
@@ -38,6 +41,7 @@ class WeatherDataTest {
 
     @Test
     void getWindSpeedTest() {
+
         //given
         String result = WeatherData.getWindSpeed("2.5");
 
@@ -48,6 +52,7 @@ class WeatherDataTest {
 
     @Test
     void getCoordinatesTest() {
+
         //given
         String result = WeatherData.getCoordinates(51.94);
 

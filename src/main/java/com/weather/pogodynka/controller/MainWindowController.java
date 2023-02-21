@@ -1,11 +1,12 @@
 package com.weather.pogodynka.controller;
 
-import com.google.gson.Gson;
 import com.weather.pogodynka.Constants;
 import com.weather.pogodynka.Dates;
 import com.weather.pogodynka.UserDefaultLocation;
 import com.weather.pogodynka.controller.persistence.PersistenceAccess;
-import com.weather.pogodynka.model.*;
+import com.weather.pogodynka.model.Current;
+import com.weather.pogodynka.model.Destination;
+import com.weather.pogodynka.model.Weather;
 import com.weather.pogodynka.service.Geocoding;
 import com.weather.pogodynka.service.Icons;
 import com.weather.pogodynka.service.WeatherService;
@@ -21,7 +22,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import java.util.*;
+import java.util.Objects;
 
 public class MainWindowController extends BaseController {
     @FXML
@@ -121,7 +122,6 @@ public class MainWindowController extends BaseController {
 
     private final WeatherService weatherService = new WeatherService();
     private final Geocoding geocoding = new Geocoding();
-    //private final WeatherData weatherData = new WeatherData();
     private final UserDefaultLocation userDefaultLocation = new UserDefaultLocation();
     private final PersistenceAccess persistenceAccess = new PersistenceAccess();
 
@@ -176,7 +176,6 @@ public class MainWindowController extends BaseController {
 
     private void todayWeather(StringBuffer content, ImageView icon, Label[] currentWeatherLabels) {
         String[] output = Current.gettingCurrentWeatherOutput(content);
-        //System.out.println(Arrays.toString(output));
 
         // GETTING ICON
         String iconCode = Icons.imageCode;
@@ -203,7 +202,7 @@ public class MainWindowController extends BaseController {
             searchResult.setText(namePL + ", " + country);
 
             StringBuffer contentWeather = weatherService.getWeather(lat, lon);
-            //System.out.println(contentWeather);
+
             todayWeather(contentWeather, currentWeatherIcon, currentWeatherLabels);
 
             String[] weatherOutput = Weather.gettingWeatherOutput(contentWeather);

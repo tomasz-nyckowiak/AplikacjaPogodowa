@@ -21,8 +21,6 @@ public class Destination {
     @SerializedName("country")
     private String country;
 
-    //private Arrays[] tab;
-
     public Destination(String name, Map<String, Object> names, double lat, double lon, String country) {
         this.name = name;
         this.names = names;
@@ -73,8 +71,6 @@ public class Destination {
 
     public static String[] gettingDestinationOutput(StringBuffer content) {
         Destination[] destination = new Gson().fromJson(content.toString(), Destination[].class);
-        //Destination destination = new Gson().fromJson(content.toString(), Destination.class);
-        //tab[] = destination.country;
 
         String country = destination[0].getCountry();
         String namePL = destination[0].getNames().get("pl").toString();
@@ -93,8 +89,4 @@ public class Destination {
 
         return output;
     }
-
-    /*public Destination myDestinationObject(Object object) {
-        object =
-    }*/
 }

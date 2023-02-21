@@ -3,11 +3,9 @@ package com.weather.pogodynka.controller.persistence;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PersistenceAccessTest {
 
@@ -15,6 +13,7 @@ class PersistenceAccessTest {
 
     @Test
     void loadUserCityNameFromFileTest() {
+
         //given
         String myExampleCity = "Katowice";
         String myPath = "src/test/resources/fileTest.txt";
@@ -29,6 +28,7 @@ class PersistenceAccessTest {
 
     @Test
     void shouldExpectedNullIfThereAreNoFile() {
+
         //given
         String myPath = "src/test/resources/myFile.txt";
 
@@ -39,19 +39,4 @@ class PersistenceAccessTest {
         //then
         assertThat(read).isEqualTo(null);
     }
-
-    @Test
-    void isCityNameFromFileValidTest() {
-        //given
-        String myExampleCity = "Berlin";
-        String myPath = "src/test/resources/cityValidation.txt";
-
-        //when
-        boolean isCityNameValid = persistenceAccess.isCityNameFromFileValid();
-
-        //then
-        assertThat(isCityNameValid).isTrue();
-    }
-
-
 }

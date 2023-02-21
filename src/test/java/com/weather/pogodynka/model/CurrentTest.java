@@ -1,104 +1,39 @@
 package com.weather.pogodynka.model;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CurrentTest {
 
-    /*@Test
-    void gettingCurrentWeatherOutputTest() {
-
-        String myPath = "src/test/resources/current.json";
+    @Test
+    void gettingCurrentWeatherOutputTest() throws IOException {
 
         //given
-        Path of = Path.of(myPath);
-        try {
-            CurrentWeatherHelperData currentWeather = new CurrentWeatherHelperData(
-                    7, 999, 85, 9.2, "bezchmurnie");
-
-            Gson gson = new Gson();
-            //String myPath = "src/test/resources/current.json";
-            Writer writer = Files.newBufferedWriter(of);
-            //File file = new File(myPath);
-
-            gson.toJson(currentWeather, writer);
-            writer.close();
-
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        //when
-
-        //StringBuffer contentWeather = new Gson().fromJson(currentWeather);
-
-        //then
-
-    }*/
-
-    @Test
-    void gettingCurrentWeatherOutputTest() {
-        String myPath = "src/test/resources/current.json";
+        Path filePath = Path.of("src/test/resources/weatherDataOutput.json");
+        String content = Files.readString(filePath);
 
         String[] output;
-        StringBuffer sb;
+        StringBuffer sb = new StringBuffer();
+        sb.append(content);
 
-        // given
-        try {
-            //Gson gson = new Gson();
+        //when
+        output = Current.gettingCurrentWeatherOutput(sb);
+        String temperature = "10" + "\u2103";
+        String pressure = "1010" + "hPa";
+        String humidity = "59" + "%";
+        String windSpeed = "6.2" + "m/s";
+        String description = "zachmurzenie umiarkowane";
 
-            creatingDataFileWithCurrentForecast();
-
-            Reader reader = Files.newBufferedReader(Paths.get(myPath));
-            sb = new StringBuffer();
-            sb.append(reader);
-
-            //CurrentWeatherHelperData outputWeather = gson.fromJson(reader, CurrentWeatherHelperData.class);
-            reader.close();
-            //StringBuffer content = new StringBuffer(outputWeather.toString());
-
-            //when
-            System.out.println(sb);
-            output = Current.gettingCurrentWeatherOutput(sb);
-            //System.out.println(Arrays.toString(forecast));
-
-            // then
-            System.out.println(output[0]);
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void creatingDataFileWithCurrentForecast() {
-        String myPath = "src/test/resources/current.json";
-
-        try {
-            CurrentWeatherHelperData currentWeather = new CurrentWeatherHelperData(
-                    7, 999, 85, 9.2, "bezchmurnie");
-
-            Gson gson = new Gson();
-
-            Writer writer = Files.newBufferedWriter(Paths.get(myPath));
-
-            gson.toJson(currentWeather, writer);
-
-            writer.close();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        //then
+        assertThat(temperature).isEqualTo(output[0]);
+        assertThat(pressure).isEqualTo(output[1]);
+        assertThat(humidity).isEqualTo(output[2]);
+        assertThat(windSpeed).isEqualTo(output[3]);
+        assertThat(description).isEqualTo(output[4]);
     }
 }
